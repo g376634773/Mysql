@@ -16,21 +16,8 @@ vim conf/my.cnf
 
 [mysqld]
 
-# the time-zone set here does not impact the value actually stored in mysql
-# it just impact what the time looks WHEN you read the time out (SELECT)
-# So, set to '+00:00', '+08:00' or others all works
-# But, If you DONOT explicitly set timezone here, mysql may defaults to use
-# CST as timezone, which leads errors for JDBC driver client.
-# see: https://www.jianshu.com/p/3dbccdef6031
 default-time-zone                         = '+08:00'
-
-
-# hostname                                = 192.168.1.100
-
-# let master use this address instead of
-# default hostname, which might not be
-# resolvable by master
-report-host                             = 192.168.1.100
+### report-host                             = 192.168.1.100
 
 port                                    = 3307
 user                                    = mysql
@@ -52,10 +39,10 @@ table-open-cache                        = 4096
 join-buffer-size                        = 16M
 sort-buffer-size                        = 16M
 
-# for sequential scan
+
 read-buffer-size                        = 16M
 
-# for random read
+
 read-rnd-buffer-size                    = 32M
 
 query-cache-type                        = 0
@@ -87,15 +74,13 @@ transaction-isolation                   = READ-COMMITTED
 optimizer-switch                        = 'batched_key_access=off,block_nested_loop=on,condition_fanout_filter=on,derived_merge=on,duplicateweedout=on,engine_condition_pushdown=on,firstmatch=on,index_condition_pushdown=off,index_merge=on,index_merge_intersection=on,index_merge_sort_union=on,index_merge_union=on,loosescan=on,materialization=on,mrr=off,mrr_cost_based=on,semijoin=on,subquery_materialization_cost_based=on,use_index_extensions=on'
 
 
-#-------------  innodb  --------------
+-------------  innodb  --------------
 
 
 innodb-data-file-path                   = ibdata1:12M:autoextend
 innodb-buffer-pool-size                 = 6G
 
-# Does not take effect when
-# innodb_buffer_pool_size is smaller
-# than 1G.
+
 innodb-buffer-pool-instances            = 8
 innodb-log-file-size                    = 256M
 
@@ -109,14 +94,14 @@ innodb-flush-method                     = O_DIRECT
 innodb-io-capacity                      = 2000
 innodb-support-xa                       = 1
 
-#-------------  myisam  --------------
+-------------  myisam  --------------
 
 
 key-buffer-size                         = 1M
 myisam-sort-buffer-size                 = 128M
 
 
-#-------------  binlog  --------------
+-------------  binlog  --------------
 
 log-bin                                 = mysql-bin
 relay-log                               = relay-bin
@@ -127,72 +112,49 @@ relay-log-space-limit                   = 64G
 relay-log-purge                         = 1
 log-slave-updates                       = 1
 
-# slave-parallel-workers                  = 8
-# slave-parallel-type                     = LOGICAL_CLOCK
-
-# NOTE(shuoqing): Disable parallel to avoid deallock, the perf should be less concerned.
 slave-parallel-workers                  = 0
 slave-parallel-type                     = DATABASE
 
-# to reduce io
-# commit binlog every 0.01 sec
-# in 10^-6 second
-# On slave this setting slows
-# down replication.
+
 binlog-group-commit-sync-delay          = 0
 
 gtid-mode                               = ON
 enforce-gtid-consistency                = 1
 binlog-checksum                         = NONE
 
-# Do not start replication at start up
-# for trouble shooting.
+
 skip-slave-start                        = 1
 
-# For enabling mutli source
-# replication.
+
 master-info-repository                  = TABLE
 relay-log-info-repository               = TABLE
 
-# remove binlog older than n days
+
 expire-logs-days                        = 15
 
 
-#-------------  group replication  --------------
+-------------  group replication  --------------
 
 transaction-write-set-extraction        = XXHASH64
 
 loose-group_replication_group_name            = "e1f5b6f9-6095-409b-b872-5fe8f8c757d7"
 
-# > Configuring group_replication_start_on_boot instructs the plugin to not start
-# > operations automatically when the server starts. This is important when setting
-# > up Group Replication as it ensures you can configure the server before manually
-# > starting the plugin. Once the member is configured you can set
-# > group_replication_start_on_boot to on so that Group Replication starts
-# > automatically upon server boot.
 
-# It shoudl be off when setting up a group.
-# After that it should be `on` to let
-# mysql auto starts group replicaton
-# when restarted.
 loose-group_replication_start_on_boot = "off"
 
 loose-group_replication_local_address         = "192.168.1.100:4307"
 loose-group_replication_group_seeds           = "192.168.1.101:4307,192.168.1.100:4307,192.168.1.102:4307"
 
-# on one server only
+
 loose-group_replication_bootstrap_group       = off
 
-# group replication requires this
-# if using multi worker to apply binlog
+
 slave-preserve-commit-order                   = 1
 
-# use multi primary mode
 loose-group-replication-single-primary-mode   = 0
 
 loose-group_replication_ip_whitelist          = "127.0.0.1/8,192.168.1.101,192.168.1.100,192.168.1.102"
 
-# to prevent write on non-group-member
 super-read-only                               = "off"
 
 
