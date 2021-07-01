@@ -17,7 +17,7 @@ vim conf/my.cnf
 [mysqld]
 
 default-time-zone                         = '+08:00'
-### report-host                             = 192.168.1.100
+#### report-host                             = 192.168.1.100
 
 port                                    = 3307
 user                                    = mysql
