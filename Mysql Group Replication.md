@@ -1,12 +1,16 @@
 # Mysql Group Replication   多主模式
 参考文档：https://www.cnblogs.com/hxlasky/p/11453885.html
+
 服务器三台：
+
 192.168.1.100
+
 192.168.1.101
+
 192.168.1.102
 
-
 1. 部署
+```
 下载mysql二进制包或者rpm包，我这里下载的是二进制包
 https://downloads.mysql.com/archives/community/ 
 选择Compressed TAR Archive，我的版本是5.7.33
@@ -181,25 +185,29 @@ key-buffer                              = 64M
 sort-buffer-size                        = 32M
 read-buffer                             = 16M
 write-buffer                            = 16M
-
+```
 2.初始化mysql并启动
+```
 chown -R mysql:mysql /data/mysql-3307
 
 /data/mysql-3307/bin/mysqld --initialize-insecure --basedir=/data/mysql-3307 --datadir=/data/mysql-3307/data --user=mysql #初始化mysql
 
 /data/mysql-3307/bin/mysqld --defaults-file=/data/mysql-3307/conf/my.cnf --daemonize --pid-file=/var/run/mysqld/mysqld-3307.pid #启动mysql
-
+```
 3.在其他节点部署mysql，并将my.cnf复制到其他节点并修改
 
 4.连接mysql
+```
 mysql -uroot  -p --socket=/var/run/mysqld/mysqld-3307.sock
-
+```
 5.安装MGR插件(所有节点执行)
+```
 mysql> install plugin group_replication soname 'group_replication.so';
 
 Query OK, 0 rows affected (0.04 sec)
-
+```
 6.设置复制账号(所有节点执行)
+```
 mysql> CREATE USER repl@'%' IDENTIFIED BY 'repl';
 
 mysql> GRANT REPLICATION SLAVE ON *.* TO repl@'%';
@@ -207,10 +215,10 @@ mysql> GRANT REPLICATION SLAVE ON *.* TO repl@'%';
 mysql> FLUSH PRIVILEGES;
 
 mysql> CHANGE MASTER TO MASTER_USER='repl', MASTER_PASSWORD='repl' FOR CHANNEL 'group_replication_recovery';
-
+```
 7.开启组复制
-
-#### 选择一个节点作为引导组的引导节点。所谓引导组，就是创建组。组创建之后，其他节点才能加入到组中。
+```
+#### 选择一个节点作为引导组的引导节点。所谓引导组，就是创建组。组创建之后，其他节点才能加入到组中。开启引导功能后，一般会立即开启该节点的组复制功能来创建组，然后立即关闭组引导功能。所以，在第一个节点上，这3个语句常放在一起执行：
 
 mysql> set global group_replication_bootstrap_group=on;
 
@@ -220,10 +228,29 @@ mysql> set global group_replication_bootstrap_group=off;
 
 #### 其他节点执行
 mysql> start group_replication;
-
+```
 8.查看主节点，如果值为空表明开启的是多主模式
+```
 select * from performance_schema.global_status where variable_name='group_replication_primary_member';
 
+mysql> select * from performance_schema.global_status where variable_name='group_replication_primary_member';
++----------------------------------+----------------+
+| VARIABLE_NAME                    | VARIABLE_VALUE |
++----------------------------------+----------------+
+| group_replication_primary_member |                |
++----------------------------------+----------------+
+1 row in set (0.01 sec)
+```
 9.查看mgr组复制信息
+```
 SELECT * FROM performance_schema.replication_group_members;
+mysql>  SELECT * FROM performance_schema.replication_group_members;
++---------------------------+--------------------------------------+-------------+-------------+--------------+
+| CHANNEL_NAME              | MEMBER_ID                            | MEMBER_HOST | MEMBER_PORT | MEMBER_STATE |
++---------------------------+--------------------------------------+-------------+-------------+--------------+
+| group_replication_applier | 726f6635-d748-11eb-be3d-52540097b3e7 | 172.18.2.71 |        3306 | ONLINE       |
+| group_replication_applier | 727efe90-d748-11eb-be4d-525400510922 | 172.18.2.70 |        3306 | ONLINE       |
+| group_replication_applier | 73986837-d748-11eb-bcbe-5254007c26b8 | 172.18.2.72 |        3306 | ONLINE       |
++---------------------------+--------------------------------------+-------------+-------------+--------------+
+```
  
