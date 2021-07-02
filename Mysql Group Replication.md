@@ -248,9 +248,9 @@ mysql>  SELECT * FROM performance_schema.replication_group_members;
 +---------------------------+--------------------------------------+-------------+-------------+--------------+
 | CHANNEL_NAME              | MEMBER_ID                            | MEMBER_HOST | MEMBER_PORT | MEMBER_STATE |
 +---------------------------+--------------------------------------+-------------+-------------+--------------+
-| group_replication_applier | 726f6635-d748-11eb-be3d-52540097b3e7 | 172.18.2.71 |        3306 | ONLINE       |
-| group_replication_applier | 727efe90-d748-11eb-be4d-525400510922 | 172.18.2.70 |        3306 | ONLINE       |
-| group_replication_applier | 73986837-d748-11eb-bcbe-5254007c26b8 | 172.18.2.72 |        3306 | ONLINE       |
+| group_replication_applier | 726f6635-d748-11eb-be3d-52540097b3e7 | 172.20.2.71 |        3306 | ONLINE       |
+| group_replication_applier | 727efe90-d748-11eb-be4d-525400510922 | 172.20.2.70 |        3306 | ONLINE       |
+| group_replication_applier | 73986837-d748-11eb-bcbe-5254007c26b8 | 172.20.2.72 |        3306 | ONLINE       |
 +---------------------------+--------------------------------------+-------------+-------------+--------------+
 ```
  
